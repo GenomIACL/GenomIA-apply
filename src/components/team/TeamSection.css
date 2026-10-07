@@ -1,0 +1,301 @@
+.team {
+  --team-gutter: clamp(24px, 7vw, 96px);
+  --team-tint: color-mix(in srgb, var(--page-accent) 16%, transparent);
+  --team-soft: color-mix(in srgb, var(--page-ink) 7%, transparent);
+
+  position: relative;
+  padding: clamp(88px, 11vw, 148px) 0 clamp(80px, 9vw, 120px);
+  color: var(--page-ink);
+  scroll-margin-top: 24px;
+  overflow-x: clip;
+  background:
+    radial-gradient(38vw 26vw at 8% 14%, var(--team-tint), transparent 70%),
+    radial-gradient(34vw 24vw at 94% 20%, color-mix(in srgb, var(--page-accent) 9%, transparent), transparent 70%);
+}
+
+/* Encabezado */
+
+.team__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 var(--team-gutter);
+  text-align: center;
+}
+
+.team__title {
+  max-width: 18ch;
+  margin: 0;
+  font-size: clamp(2.5rem, 5.4vw, 4.5rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+
+.team__title__down {
+  color: #c6e7ff;
+}
+
+.team__intro {
+  max-width: 50ch;
+  margin: 24px 0 0;
+  color: var(--page-ink-soft);
+  font-size: clamp(1rem, 1.3vw, 1.1875rem);
+  font-weight: 400;
+  line-height: 1.6;
+  text-wrap: balance;
+}
+
+/* Escenario del carrusel, a todo el ancho */
+
+.team__stage {
+  --w: clamp(220px, 21vw, 296px);
+  --gap: clamp(14px, 2vw, 28px);
+
+  padding: clamp(56px, 7vw, 88px) 0 clamp(32px, 5vw, 64px);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+
+.team__stage:focus-visible {
+  outline: 2px solid var(--page-accent);
+  outline-offset: -4px;
+}
+
+.team__track {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+  width: max-content;
+  margin-left: 50%;
+  transform: translateX(calc(-1 * (var(--position) * (var(--w) + var(--gap)) + var(--w) / 2)));
+  transition: transform .9s cubic-bezier(.22, .7, .2, 1);
+}
+
+.team__track[data-resetting="true"] {
+  transition: none;
+}
+
+/* Tarjeta */
+
+.team__card {
+  position: relative;
+  flex: 0 0 var(--w);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--team-soft);
+  cursor: pointer;
+  transform:
+    translateY(calc(min(var(--d), 3) * 26px))
+    scale(calc(1 - min(var(--d), 1) * .1));
+  transition:
+    transform .9s cubic-bezier(.22, .7, .2, 1),
+    box-shadow .9s ease;
+}
+
+.team__card[data-active="true"] {
+  z-index: 1;
+  cursor: default;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--page-ink) 6%, transparent),
+    0 30px 70px -20px color-mix(in srgb, var(--page-accent) 40%, transparent);
+}
+
+.team__portrait {
+  position: relative;
+  height: 100%;
+}
+
+.team__details {
+  display: grid;
+  grid-template-rows: 0fr;
+  color: #fff;
+  transition: grid-template-rows .26s cubic-bezier(.77, 0, .175, 1);
+}
+
+.team__card[data-expanded="true"] .team__details {
+  grid-template-rows: 1fr;
+}
+
+.team__details-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.team__stage:focus-visible .team__details,
+.team__card:has(.team__trigger:focus-visible) .team__details {
+  transition: none;
+}
+
+.team__trigger {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.team__trigger:focus-visible {
+  outline: 2px solid #c6e7ff;
+  outline-offset: -4px;
+}
+
+.team__photo {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  filter: grayscale(1) contrast(1.03);
+  transition: filter .9s ease;
+}
+
+.team__card[data-active="true"] .team__photo {
+  filter: grayscale(0);
+}
+
+/* Velo de color en la tarjeta activa y degradado inferior para legibilidad */
+
+.team__portrait::before,
+.team__portrait::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.team__portrait::before {
+  background: linear-gradient(155deg, var(--team-tint), transparent 55%);
+  opacity: 0;
+  transition: opacity .9s ease;
+}
+
+.team__card[data-active="true"] .team__portrait::before {
+  opacity: 1;
+}
+
+.team__portrait::after {
+  background: linear-gradient(to top, rgba(0, 0, 0, .5), transparent 58%);
+}
+
+/* Panel de vidrio con nombre y descripción */
+
+.team__caption {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  z-index: 1;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 15px;
+  background: rgba(18, 18, 18, .36);
+  color: #fff;
+  text-align: center;
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+}
+
+
+@media (hover: hover) and (pointer: fine) {
+  .team__card:has(.team__trigger):hover .team__caption {
+    border-color: rgba(198, 231, 255, .55);
+  }
+}
+
+.team__name {
+  margin: 0;
+  font-size: clamp(1rem, 1.3vw, 1.125rem);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -.01em;
+}
+
+.team__role {
+  margin: 5px 0 0;
+  color: #d8e7ef;
+  font-size: .8125rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+
+/* Estudios revelados en la misma tarjeta, sin repetir el rol visible. */
+
+.team__credentials {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px solid rgba(198, 231, 255, .24);
+  list-style: none;
+}
+
+.team__degree,
+.team__institution {
+  display: block;
+}
+
+.team__degree {
+  font-size: .8125rem;
+  font-weight: 500;
+  line-height: 1.32;
+}
+
+.team__institution {
+  margin-top: 3px;
+  color: #b8cad9;
+  font-size: .75rem;
+  line-height: 1.35;
+}
+
+.team__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Responsive */
+
+@media (max-width: 640px) {
+  .team__stage {
+    --w: min(68vw, 270px);
+    --gap: 14px;
+  }
+
+  .team__title {
+    font-size: clamp(2.25rem, 9vw, 3rem);
+  }
+
+  .team__intro {
+    margin-top: 20px;
+  }
+
+  .team__card {
+    transform:
+      translateY(calc(min(var(--d), 3) * 18px))
+      scale(calc(1 - min(var(--d), 1) * .08));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team__track,
+  .team__card,
+  .team__photo,
+  .team__portrait::before,
+  .team__details {
+    transition: none;
+  }
+}

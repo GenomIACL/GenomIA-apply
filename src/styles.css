@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;800&display=block');
+
+:root {
+  --page-bg: #04101f;
+  --page-ink: #f2f9ff;
+  --page-ink-soft: #b9d3e8;
+  --page-ink-faint: #7f9bb6;
+  --page-accent: #8cd0ff;
+  --page-line: rgba(140, 208, 255, .16);
+}
+
+* { box-sizing: border-box; }
+html, body, #root { width: 100%; min-height: 100%; margin: 0; }
+html, body { overflow-x: clip; background: var(--page-bg); }
+body {
+  color: var(--page-ink);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
+
+::selection {
+  background: var(--page-accent);
+  color: var(--page-bg);
+}
+
+/* The hero video sits on black space; fade it into the page's deep blue. */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  height: 18vh;
+  background: linear-gradient(180deg, transparent, var(--page-bg));
+  pointer-events: none;
+}
+
+.site-footer {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 28px clamp(20px, 7.5vw, 112px) 40px;
+  border-top: 1px solid var(--page-line);
+}
+
+.site-footer p {
+  margin: 0;
+  color: var(--page-ink-faint);
+  font-size: .8125rem;
+  line-height: 1.6;
+}
