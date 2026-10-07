@@ -10,3 +10,6 @@ dist/
 odd/.
 odd
 DESIGN.md
+
+# Local Netlify folder
+.netlify
