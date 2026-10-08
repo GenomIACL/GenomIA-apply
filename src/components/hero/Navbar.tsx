@@ -8,6 +8,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const burgerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLElement>(null);
+  const logoRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -40,6 +41,18 @@ export default function Navbar() {
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    const logo = logoRef.current;
+    if (!logo) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      logo.style.animationPlayState = entry.isIntersecting ? 'running' : 'paused';
+    });
+
+    observer.observe(logo);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
       <header className="nav">
@@ -56,7 +69,7 @@ export default function Navbar() {
         </div>
 
         <a className="nav-brand" href="/" aria-label="GenomIA, ir al inicio">
-          <img className="logo" src={brandLogo} alt="" style={{ width: '40px', height: 'auto' }} />
+          <img ref={logoRef} className="logo" src={brandLogo} alt="" />
         </a>
 
         <div className="nav-side nav-side-right">

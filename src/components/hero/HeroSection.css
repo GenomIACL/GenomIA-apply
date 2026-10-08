@@ -98,8 +98,19 @@
 .logo {
   display: block;
   width: auto;
-  height: calc(28 * var(--u));
+  height: calc(50 * var(--u));
   transform: translateY(calc(-2.4 * var(--u)));
+  animation: logoSpin 10s linear infinite;
+}
+
+@keyframes logoSpin {
+  from {
+    transform: translateY(calc(-2.4 * var(--u))) perspective(calc(200 * var(--u))) rotateY(0deg);
+  }
+
+  to {
+    transform: translateY(calc(-2.4 * var(--u))) perspective(calc(200 * var(--u))) rotateY(360deg);
+  }
 }
 
 
@@ -476,7 +487,7 @@ button:focus-visible,
   }
 
   .logo {
-    height: 24px;
+    height: 42px;
   }
 
   .burger {
