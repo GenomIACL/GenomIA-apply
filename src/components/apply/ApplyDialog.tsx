@@ -48,15 +48,16 @@ async function api(body: object): Promise<{ status: number; data: Record<string,
 
 const draftKey = (sub: string) => `genomia-draft:${sub}`;
 
-function readDraft(sub: string): { answers: Answers; section: number } | null {
+function readDraft(sub: string): { answers: Answers; section: number; version: number } | null {
   try {
-    return JSON.parse(localStorage.getItem(draftKey(sub)) ?? 'null');
+    const draft = JSON.parse(localStorage.getItem(draftKey(sub)) ?? 'null');
+    return draft?.version === 2 ? draft : null;
   } catch {
     return null;
   }
 }
 
-function writeDraft(sub: string, draft: { answers: Answers; section: number } | null) {
+function writeDraft(sub: string, draft: { answers: Answers; section: number; version: number } | null) {
   try {
     if (draft) localStorage.setItem(draftKey(sub), JSON.stringify(draft));
     else localStorage.removeItem(draftKey(sub));
@@ -131,7 +132,7 @@ export default function ApplyDialog() {
   }, [open, step]);
 
   useEffect(() => {
-    if (user && typeof step === 'number') writeDraft(user.sub, { answers, section: step });
+    if (user && typeof step === 'number') writeDraft(user.sub, { version: 2, answers, section: step });
   }, [user, answers, step]);
 
   useEffect(() => {
@@ -236,21 +237,14 @@ export default function ApplyDialog() {
           </p>
         )}
 
-        {section && (
-          <div className="apply__progress">
-            <span>
-              Sección {(step as number) + 1} de {SECTIONS.length}
-            </span>
-            <span>{section.title}</span>
-            <span
-              className="apply__bar"
-              role="progressbar"
-              aria-label="Progreso de la postulación"
-              aria-valuemin={1}
-              aria-valuemax={SECTIONS.length}
-              aria-valuenow={(step as number) + 1}
-            >
-              <span style={{ transform: `scaleX(${((step as number) + 1) / SECTIONS.length})` }} />
+        {(section || step === 'login') && (
+          <div className="apply__progress" role="group" aria-label="Progreso de la inscripción">
+            {Array.from({ length: SECTIONS.length + 1 }, (_, index) => {
+              const current = step === 'login' ? 0 : (step as number) + 1;
+              return <span key={index} className={`apply__dot${index < current ? ' is-complete' : ''}${index === current ? ' is-current' : ''}`} aria-hidden="true" />;
+            })}
+            <span className="apply__sr-only" aria-live="polite">
+              {step === 'login' ? 'Presentación, paso 1' : `${section?.title}, paso ${(step as number) + 2} de ${SECTIONS.length + 1}`}
             </span>
           </div>
         )}
@@ -264,16 +258,10 @@ export default function ApplyDialog() {
 
           {step === 'login' && (
             <div className="apply__login">
-              <p>
-                GenomIA es una plataforma web que entrega a cada persona un reporte genómico comprensible e
-                interactivo, asistido por inteligencia artificial y contextualizado con datos de la población
-                chilena.
-              </p>
-
-              <p className="apply__lead">
-                Para postular, ingresa con tu cuenta de Google. La usamos solo para identificarte y asegurar una
-                postulación por persona.
-              </p>
+              <p><strong>Inscripción a GenomIA.</strong> GenomIA es un proyecto de la Universidad de O'Higgins, a cargo del Dr. Alex Di Genova (Instituto de Ciencias de la Ingeniería) y financiado por ANID (concurso IDeA I+D 2026). Busca desarrollar un reporte genómico con un asistente de inteligencia artificial en español, para lo cual reunirá muestras de ADN de 250 personas sanas de Chile.</p>
+              <p>Puede inscribirse si tiene más de 18 años, no tiene un diagnóstico de enfermedad y no ha recibido ni está recibiendo tratamiento por una condición diagnosticada.</p>
+              <p>Este formulario es una inscripción inicial y toma unos 5 minutos. Más adelante podrá leer y firmar en persona el consentimiento informado oficial, que explica el estudio completo. Su participación es voluntaria.</p>
+              <p className="apply__lead">Para comenzar, ingrese con su cuenta de Google. La identidad se verificará para registrar su inscripción.</p>
 
               <div className="apply__cta">
                 <div ref={googleButtonRef} className="apply__google" />
@@ -309,8 +297,25 @@ export default function ApplyDialog() {
                 {section.title}
               </h3>
 
+              {step === 0 && <div className="apply__copy">
+                <details><summary>Qué se le pedirá y costos</summary>
+                  <p><strong>Qué se le pedirá.</strong> Una muestra de sangre venosa de 4 mL, tomada por personal calificado en un centro de salud sugerido por el proyecto. Si lo autoriza, también un panel de exámenes de sangre sin costo para usted, que incluye hemograma, perfil lipídico, glucosa en ayunas y otros indicadores de riñón, hígado y metabolismo. En ese caso se le informará antes la cantidad de sangre necesaria y las indicaciones de preparación, incluido el ayuno.</p>
+                  <p><strong>Costos.</strong> El proyecto cubre todo lo que forma parte del estudio. Consultas, exámenes u otros servicios de salud habituales no los cubre.</p>
+                </details>
+                <details><summary>Qué recibe y riesgos</summary>
+                  <p><strong>Qué recibe.</strong> Un reporte genómico comprensible, interactivo y contextualizado, al que accederá con un código del participante y su correo electrónico. Es poco probable, pero posible, que la información sea útil para su salud o la de su familia. El reporte es educativo e informativo y no constituye un diagnóstico médico. Su participación no le da derechos de propiedad intelectual, participación comercial ni beneficios económicos.</p>
+                  <p><strong>Riesgos.</strong> La toma de sangre puede causar molestia en el sitio de la punción y, excepcionalmente, inflamación de la vena, hematomas o infección; en ese caso debe acudir de inmediato a la unidad donde se tomó la muestra. Además, el análisis de su genoma puede revelar riesgos futuros para su salud o la de su familia, e información sensible sobre ascendencia, parentesco, predisposición hereditaria o respuesta a medicamentos.</p>
+                </details>
+                <details><summary>Confidencialidad y sus derechos</summary>
+                  <p><strong>Confidencialidad.</strong> Su información es estrictamente confidencial y se guarda codificada en la Universidad de O'Higgins, conforme a la Ley 21.719. Solo acceden los investigadores, el coordinador del estudio y el comité de ética, de forma anónima o agregada. La inteligencia artificial funciona con procesamiento local y sus datos individuales no se usan para entrenar el modelo.</p>
+                  <p><strong>Sus derechos.</strong> Puede retirarse en cualquier momento sin perjuicio. Al retirarse se elimina el vínculo entre su identidad y sus muestras y datos, pero los datos genómicos y las muestras se conservan sin posibilidad de identificarlo y seguirán usándose en este proyecto o en futuros. Tiene derecho a conocer los resultados, agregados e individuales. Todo esto se detalla en el consentimiento oficial.</p>
+                </details>
+              </div>}
+              {step === 2 && <div className="apply__copy"><p>Su información genómica podrá usarse para estudiar variación genética (diferencias naturales del ADN entre personas), ancestría genética (estimación estadística de similitud con poblaciones de referencia; no define identidad cultural ni pertenencia étnica), farmacogenómica (cómo ciertas variantes se relacionan con la respuesta a medicamentos) y salud poblacional (análisis agrupado de la población chilena).</p></div>}
               {section.questions.map((q) =>
-                q.options ? (
+                q.requiredAcceptance ? (
+                  <label key={q.id} className="apply__accept"><input type="checkbox" required checked={answers[q.id] === 'true'} onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.checked ? 'true' : 'false' }))} /> <span>{q.text}</span></label>
+                ) : q.options ? (
                   <fieldset key={q.id} className="apply__question">
                     <legend>{q.text}</legend>
                     <div className="apply__options">
@@ -338,7 +343,7 @@ export default function ApplyDialog() {
                     <textarea
                       rows={5}
                       required
-                      maxLength={2000}
+                      maxLength={q.maxWords ? 10000 : 2000}
                       value={answers[q.id] ?? ''}
                       placeholder="Escribe aquí tu respuesta…"
                       onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
@@ -359,6 +364,7 @@ export default function ApplyDialog() {
                 ),
               )}
 
+              {step === 7 && <p className="apply__copy">Gracias por inscribirse. Nos pondremos en contacto con usted a su correo.</p>}
               <div className="apply__actions">
                 {(step as number) > 0 && (
                   <button type="button" className="apply__secondary" onClick={() => setStep((step as number) - 1)}>
@@ -366,7 +372,7 @@ export default function ApplyDialog() {
                   </button>
                 )}
                 <button type="submit" className="apply__primary" disabled={sending}>
-                  {step === SECTIONS.length - 1 ? (sending ? 'Enviando…' : 'Postular') : 'Continuar'}
+                  {step === SECTIONS.length - 1 ? (sending ? 'Enviando…' : 'Enviar inscripción') : 'Continuar'}
                 </button>
               </div>
             </form>

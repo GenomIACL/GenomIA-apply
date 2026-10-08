@@ -4,7 +4,7 @@
   --team-soft: color-mix(in srgb, var(--page-ink) 7%, transparent);
 
   position: relative;
-  padding: 80px 0 clamp(80px, 9vw, 120px);
+  padding: clamp(88px, 11vw, 148px) 0 clamp(80px, 9vw, 120px);
   color: var(--page-ink);
   scroll-margin-top: 24px;
   overflow-x: clip;

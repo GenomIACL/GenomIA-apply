@@ -10,6 +10,7 @@ export type Question = {
   /** Present = pick one; absent = free text. */
   options?: string[];
   maxWords?: number;
+  requiredAcceptance?: boolean;
 };
 
 export type Section = {
@@ -20,36 +21,36 @@ export type Section = {
 const YES_NO = ['Sí', 'No'];
 
 export const SECTIONS: Section[] = [
+  { title: 'Lo esencial antes de inscribirse', questions: [] },
   {
-    title: 'Ficha de caracterización',
+    title: 'Sobre ti',
     questions: [
-      { id: 'P0.1', text: '¿Tiene 18 años o más?', options: YES_NO },
-      {
-        id: 'P0.2',
-        text: '¿Acepta participar voluntariamente en el estudio y entregar una muestra biológica para análisis genómico?',
-        options: YES_NO,
-      },
-      {
-        id: 'P0.3',
-        text: '¿Se considera actualmente una persona sana o sin una enfermedad grave activa?',
-        options: YES_NO,
-      },
-      { id: 'P0.4', text: '¿Ha sido diagnosticado/a alguna vez con cáncer?', options: YES_NO },
-      { id: 'P0.5', text: '¿Ha recibido un trasplante de órgano o médula ósea?', options: YES_NO },
-      { id: 'P0.6', text: '¿Ha recibido transfusión de sangre en los últimos 6 meses?', options: YES_NO },
-      {
-        id: 'P0.7',
-        text: '¿Tiene parentesco de primer grado con otra persona ya incorporada al estudio?',
-        options: YES_NO,
-      },
+      { id: 'elegibilidad_mayor_18', text: 'Tengo más de 18 años.', options: YES_NO },
+      { id: 'elegibilidad_sin_diagnostico', text: 'No tengo un diagnóstico de enfermedad.', options: YES_NO },
+      { id: 'elegibilidad_sin_tratamiento', text: 'No estoy ni he estado en tratamiento por una condición diagnosticada.', options: YES_NO },
     ],
   },
+  { title: 'Aclaración previa a las preguntas', questions: [] },
   {
-    title: 'Motivación',
+    title: 'Preguntas sobre el estudio',
     questions: [
-      { id: 'motivacion', text: '¿Por qué te quieres hacer tu genoma?', maxWords: 100 },
+      { id: 'estudio_muestra_sangre', text: '¿Autoriza que se le tome una muestra de sangre venosa periférica?', options: YES_NO },
+      { id: 'estudio_genoma_completo', text: '¿Autoriza el análisis de su genoma completo dentro del proyecto GenomIA?', options: YES_NO },
+      { id: 'estudio_analisis_cientificos', text: '¿Autoriza que sus datos genómicos codificados se usen en análisis científicos sobre variación genética, ancestría, farmacogenómica y salud de la población chilena?', options: YES_NO },
     ],
   },
+  { title: 'Experiencia y contacto', questions: [
+    { id: 'estudio_retroalimentacion', text: '¿Acepta entregar retroalimentación (valoraciones, reacciones, comentarios o encuestas breves) sobre contenidos de la plataforma como ancestría, farmacogenómica, rasgos y riesgos genéticos?', options: YES_NO },
+    { id: 'estudio_contacto_informacion', text: '¿Autoriza que lo/la contactemos en el futuro para aclarar información, entregar resultados generales del estudio o invitarle a estudios relacionados?', options: YES_NO },
+    { id: 'estudio_recibir_informacion', text: '¿Desea recibir información general del proyecto, como reportes educativos o resultados agregados de la cohorte?', options: YES_NO },
+  ] },
+  { title: 'Seguimiento y exámenes', questions: [
+    { id: 'estudio_consentimiento_dinamico', text: '¿Autoriza que lo/la contactemos en el futuro para acceder al consentimiento informado dinámico?', options: YES_NO },
+    { id: 'estudio_panel_examenes', text: '¿Autoriza la realización del panel de exámenes de sangre como parte de su participación en GenomIA?', options: YES_NO },
+    { id: 'estudio_integrar_resultados', text: '¿Autoriza que los resultados de sus exámenes se integren y analicen junto con su información genómica y los antecedentes que haya autorizado, para los objetivos científicos y tecnológicos de GenomIA?', options: YES_NO },
+  ] },
+  { title: 'Cierre y aceptación', questions: [{ id: 'acepta_inscripcion', text: 'He leído y acepto los términos y condiciones completos de esta inscripción a GenomIA, y acepto inscribirme. Entiendo que firmaré el consentimiento informado oficial en persona y que, en caso de diferencia, rige el consentimiento informado oficial.', requiredAcceptance: true }] },
+  { title: 'Para finalizar', questions: [{ id: 'motivacion_genoma', text: 'En hasta 100 palabras, ¿por qué quiere hacerse el genoma?', maxWords: 100 }] },
 ];
 
 export const QUESTIONS = SECTIONS.flatMap((section) => section.questions);
@@ -65,6 +66,7 @@ export function validateAnswers(answers: Record<string, unknown>): string | null
     if (typeof value !== 'string' || !value.trim()) return `Falta responder ${q.id}`;
     if (value.length > MAX_TEXT_LENGTH) return `${q.id} es demasiado larga`;
     if (q.options && !q.options.includes(value)) return `${q.id} tiene una opción inválida`;
+    if (q.requiredAcceptance && value !== 'true') return `${q.id} es obligatorio`;
     if (q.maxWords && countWords(value) > q.maxWords) return `${q.id} supera ${q.maxWords} palabras`;
   }
   return null;
