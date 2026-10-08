@@ -141,6 +141,10 @@ export default function ApplyDialog() {
     headingRef.current?.focus();
   }, [step]);
 
+  useEffect(() => {
+    if (notice) bodyRef.current?.scrollTo({ top: 0 });
+  }, [notice]);
+
   async function signIn(token: string) {
     const signedIn = readToken(token);
     setCredential(token);
@@ -216,11 +220,9 @@ export default function ApplyDialog() {
     >
       <div className="apply__panel">
         <header className="apply__header">
-          <div>
-            <h2 id="apply-title" className="apply__title">
-              Postula a GenomIA
-            </h2>
-          </div>
+          <h2 id="apply-title" className="apply__title">
+            Postula a GenomIA
+          </h2>
           <button className="apply__close" type="button" aria-label="Cerrar postulación" onClick={close}>
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
@@ -261,9 +263,9 @@ export default function ApplyDialog() {
               <p><strong>Inscripción a GenomIA.</strong> GenomIA es un proyecto de la Universidad de O'Higgins, a cargo del Dr. Alex Di Genova (Instituto de Ciencias de la Ingeniería) y financiado por ANID (concurso IDeA I+D 2026). Busca desarrollar un reporte genómico con un asistente de inteligencia artificial en español, para lo cual reunirá muestras de ADN de 250 personas sanas de Chile.</p>
               <p>Puede inscribirse si tiene más de 18 años, no tiene un diagnóstico de enfermedad y no ha recibido ni está recibiendo tratamiento por una condición diagnosticada.</p>
               <p>Este formulario es una inscripción inicial y toma unos 5 minutos. Más adelante podrá leer y firmar en persona el consentimiento informado oficial, que explica el estudio completo. Su participación es voluntaria.</p>
-              <p className="apply__lead">Para comenzar, ingrese con su cuenta de Google. La identidad se verificará para registrar su inscripción.</p>
 
               <div className="apply__cta">
+                <p className="apply__lead">Para comenzar, ingrese con su cuenta de Google. La identidad se verificará para registrar su inscripción.</p>
                 <div ref={googleButtonRef} className="apply__google" />
               </div>
             </div>
