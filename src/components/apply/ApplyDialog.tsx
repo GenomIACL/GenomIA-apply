@@ -260,9 +260,9 @@ export default function ApplyDialog() {
 
           {step === 'login' && (
             <div className="apply__login">
-              <p><strong>Inscripción a GenomIA.</strong> GenomIA es un proyecto de la Universidad de O'Higgins, a cargo del Dr. Alex Di Genova (Instituto de Ciencias de la Ingeniería) y financiado por ANID (concurso IDeA I+D 2026). Busca desarrollar un reporte genómico con un asistente de inteligencia artificial en español, para lo cual reunirá muestras de ADN de 250 personas sanas de Chile.</p>
+              <p>GenomIA es un proyecto de la Universidad de O'Higgins, a cargo del Dr. Alex Di Genova (Instituto de Ciencias de la Ingeniería) y financiado por ANID (concurso IDeA I+D 2026). Busca desarrollar un reporte genómico con un asistente de inteligencia artificial en español, para lo cual reunirá muestras de ADN de 250 personas sanas de Chile.</p>
               <p>Puede inscribirse si tiene más de 18 años, no tiene un diagnóstico de enfermedad y no ha recibido ni está recibiendo tratamiento por una condición diagnosticada.</p>
-              <p>Este formulario es una inscripción inicial y toma unos 5 minutos. Más adelante podrá leer y firmar en persona el consentimiento informado oficial, que explica el estudio completo. Su participación es voluntaria.</p>
+              <p>Este formulario es una inscripción inicial y toma unos 5 minutos. Más adelante podrá leer y firmar en persona el consentimiento informado oficial, que explica el estudio completo. <strong>Su participación es voluntaria.</strong></p>
 
               <div className="apply__cta">
                 <p className="apply__lead">Para comenzar, ingrese con su cuenta de Google. La identidad se verificará para registrar su inscripción.</p>

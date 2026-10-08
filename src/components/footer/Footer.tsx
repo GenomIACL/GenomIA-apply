@@ -10,12 +10,13 @@ const SUPPORTERS = [
     src: fondef,
     alt: 'FONDEF, Fondo de Fomento al Desarrollo Científico y Tecnológico',
   },
+  { href: 'https://www.uoh.cl/', src: uoh, alt: "Universidad de O'Higgins" },
   {
     href: 'https://anid.cl/',
     src: mincienciaAnid,
     alt: 'ANID, Agencia Nacional de Investigación y Desarrollo',
   },
-  { href: 'https://www.uoh.cl/', src: uoh, alt: "Universidad de O'Higgins" },
+  
 ];
 
 export default function Footer() {

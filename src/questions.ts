@@ -1,9 +1,3 @@
-/**
- * Single source of truth for the application form. The dialog renders it and
- * the Netlify Function validates against it and turns each `id` into a sheet
- * column, so adding a question here is all it takes (the column appears on the
- * next submission). Never reuse or rename an `id`: it is the column header.
- */
 export type Question = {
   id: string;
   text: string;

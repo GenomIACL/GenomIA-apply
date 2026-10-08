@@ -98,7 +98,7 @@
 .logo {
   display: block;
   width: auto;
-  height: calc(50 * var(--u));
+  height: calc(38 * var(--u));
   transform: translateY(calc(-2.4 * var(--u)));
   animation: logoSpin 10s linear infinite;
 }
