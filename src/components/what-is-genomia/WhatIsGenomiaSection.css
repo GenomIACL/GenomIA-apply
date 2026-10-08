@@ -4,14 +4,10 @@
 
   max-width: 1440px;
   margin: 0 auto;
-  padding: clamp(112px, 14vw, 192px) clamp(16px, 5vw, 80px) clamp(96px, 12vw, 160px);
+  padding: 40px clamp(16px, 5vw, 80px) clamp(96px, 12vw, 160px);
   color: var(--page-ink);
 }
 
-/*
- * Bento: the heading sits on the page itself, not in a box; the three pillars
- * are surfaces (tint only, no borders), Chile runs tall beside them, the CTA closes.
- */
 .wig__bento {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -19,15 +15,15 @@
     'intro intro intro intro intro intro intro intro chile chile chile chile'
     'simple simple simple simple evidence evidence evidence evidence chile chile chile chile'
     'cta cta cta cta cta cta cta cta cta cta cta cta';
-  gap: clamp(12px, 1.4vw, 20px);
+  gap: clamp(12px, 1.4vw, 15px);
 }
 
 .wig__tile {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 15px;
   padding: var(--tile-pad);
-  border-radius: 16px;
+  border-radius: 20px;
   background: var(--tile-bg);
 }
 
@@ -86,6 +82,7 @@
   font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
   font-weight: 300;
   line-height: 1.6;
+  text-align: justify;
 }
 
 /* SplitText's line masks clip at the line box; give descenders (g, p) room. */

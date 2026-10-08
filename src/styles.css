@@ -37,7 +37,6 @@ body {
 }
 
 .site-footer {
-  max-width: 1440px;
   margin: 0 auto;
   padding: 28px clamp(20px, 7.5vw, 112px) 40px;
   border-top: 1px solid var(--page-line);

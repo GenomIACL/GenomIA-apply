@@ -173,11 +173,28 @@
   font-size: .9375rem;
   font-weight: 300;
   line-height: 1.6;
+  text-align: justify;
+}
+
+.apply__login .apply__lead {
+  margin-top: 14px;
+}
+
+.apply__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 26px;
+  padding-top: 24px;
+  border-top: 1px solid var(--apply-line);
+  text-align: center;
 }
 
 .apply__google {
+  display: flex;
+  justify-content: center;
+  width: 100%;
   min-height: 44px;
-  margin-top: 22px;
 }
 
 .apply__done-title,

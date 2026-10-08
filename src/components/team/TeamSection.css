@@ -4,7 +4,7 @@
   --team-soft: color-mix(in srgb, var(--page-ink) 7%, transparent);
 
   position: relative;
-  padding: clamp(88px, 11vw, 148px) 0 clamp(80px, 9vw, 120px);
+  padding: 80px 0 clamp(80px, 9vw, 120px);
   color: var(--page-ink);
   scroll-margin-top: 24px;
   overflow-x: clip;
@@ -34,7 +34,7 @@
 }
 
 .team__title__down {
-  color: #c6e7ff;
+  color: #8cd0ff;
 }
 
 .team__intro {
@@ -155,7 +155,7 @@
   height: 100%;
   object-fit: cover;
   object-position: center 18%;
-  filter: grayscale(1) contrast(1.03);
+  filter: grayscale(1) contrast(1.05);
   transition: filter .9s ease;
 }
 

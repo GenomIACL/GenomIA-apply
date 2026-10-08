@@ -55,7 +55,9 @@ export default function Navbar() {
           </div>
         </div>
 
-        <img className="logo" src={brandLogo} alt="GenomIA" />
+        <a className="nav-brand" href="/" aria-label="GenomIA, ir al inicio">
+          <img className="logo" src={brandLogo} alt="" style={{ width: '40px', height: 'auto' }} />
+        </a>
 
         <div className="nav-side nav-side-right">
           <div className="nav-actions nav-actions-right">

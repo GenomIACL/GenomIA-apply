@@ -119,7 +119,8 @@ export default function ApplyDialog() {
           shape: 'pill',
           text: 'continue_with',
           locale: 'es',
-          width: 280,
+          // Never wider than the card, so it stays centered on narrow phones.
+          width: Math.max(200, Math.min(280, googleButtonRef.current.clientWidth || 280)),
         });
       },
       () => !cancelled && setNotice('No pudimos cargar Google. Revisa tu conexión e inténtalo de nuevo.'),
@@ -215,7 +216,6 @@ export default function ApplyDialog() {
       <div className="apply__panel">
         <header className="apply__header">
           <div>
-            <p className="apply__kicker">GenomIA · Postulación</p>
             <h2 id="apply-title" className="apply__title">
               Postula a GenomIA
             </h2>
@@ -265,10 +265,19 @@ export default function ApplyDialog() {
           {step === 'login' && (
             <div className="apply__login">
               <p>
-                Ingresa con tu cuenta de Google para postular. La usamos solo para identificarte y
-                asegurar una postulación por persona.
+                GenomIA es una plataforma web que entrega a cada persona un reporte genómico comprensible e
+                interactivo, asistido por inteligencia artificial y contextualizado con datos de la población
+                chilena.
               </p>
-              <div ref={googleButtonRef} className="apply__google" />
+
+              <p className="apply__lead">
+                Para postular, ingresa con tu cuenta de Google. La usamos solo para identificarte y asegurar una
+                postulación por persona.
+              </p>
+
+              <div className="apply__cta">
+                <div ref={googleButtonRef} className="apply__google" />
+              </div>
             </div>
           )}
 
