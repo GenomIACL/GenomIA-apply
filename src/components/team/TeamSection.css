@@ -55,6 +55,8 @@
 
   padding: clamp(56px, 7vw, 88px) 0 clamp(32px, 5vw, 64px);
   overflow: hidden;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
 }
@@ -158,6 +160,10 @@
   filter: grayscale(1) contrast(1.05);
   transition: filter .9s ease;
 }
+.team__photo--missing {
+  background: var(--team-soft);
+  filter: none;
+}
 
 .team__card[data-active="true"] .team__photo {
   filter: grayscale(0);
@@ -254,6 +260,18 @@
 .team__institution {
   margin-top: 3px;
   color: #b8cad9;
+  font-size: .75rem;
+  line-height: 1.35;
+}
+.team__area-item {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(198, 231, 255, .24);
+}
+
+.team__area {
+  display: block;
+  color: #d8e7ef;
   font-size: .75rem;
   line-height: 1.35;
 }

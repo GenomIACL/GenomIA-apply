@@ -48,10 +48,23 @@ async function api(body: object): Promise<{ status: number; data: Record<string,
 
 const draftKey = (sub: string) => `genomia-draft:${sub}`;
 
+const DRAFT_VERSION = 5;
+
 function readDraft(sub: string): { answers: Answers; section: number; version: number } | null {
   try {
     const draft = JSON.parse(localStorage.getItem(draftKey(sub)) ?? 'null');
-    return draft?.version === 2 ? draft : null;
+    if (draft?.version === DRAFT_VERSION) return draft;
+    if (![2, 3, 4].includes(draft?.version)) return null;
+
+    const answers: Answers = { ...draft.answers };
+    delete answers.elegibilidad_sin_diagnostico;
+    delete answers.elegibilidad_sin_tratamiento;
+    delete answers.elegibilidad_enfermedad;
+
+    const section = draft.version === 3
+      ? Math.min(draft.section + 1, SECTIONS.length - 1)
+      : draft.version === 2 ? 0 : draft.section;
+    return { ...draft, answers, section, version: DRAFT_VERSION };
   } catch {
     return null;
   }
@@ -66,12 +79,13 @@ function writeDraft(sub: string, draft: { answers: Answers; section: number; ver
   }
 }
 
-const formatDate = (iso: string) => {
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime())
-    ? ''
-    : date.toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' });
-};
+
+function normalizePhone(value: string) {
+  const digits = value.replace(/\D/g, '');
+  const local = digits.startsWith('56') ? digits.slice(2) : digits;
+  return local.slice(0, 9);
+}
+
 
 export default function ApplyDialog() {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -86,7 +100,7 @@ export default function ApplyDialog() {
   const [answers, setAnswers] = useState<Answers>({});
   const [notice, setNotice] = useState('');
   const [sending, setSending] = useState(false);
-  const [result, setResult] = useState({ date: '', already: false });
+  const [result, setResult] = useState({ already: false });
 
   // Open on #postula, so every "Postula" link is a plain anchor.
   useEffect(() => {
@@ -132,7 +146,7 @@ export default function ApplyDialog() {
   }, [open, step]);
 
   useEffect(() => {
-    if (user && typeof step === 'number') writeDraft(user.sub, { version: 2, answers, section: step });
+    if (user && typeof step === 'number') writeDraft(user.sub, { version: DRAFT_VERSION, answers, section: step });
   }, [user, answers, step]);
 
   useEffect(() => {
@@ -154,7 +168,7 @@ export default function ApplyDialog() {
 
     const { status, data } = await api({ credential: token });
     if (status === 200 && data.applied) {
-      setResult({ date: String(data.date ?? ''), already: true });
+      setResult({ already: true });
       setStep('done');
     } else if (status === 200) {
       const draft = readDraft(signedIn.sub);
@@ -193,7 +207,7 @@ export default function ApplyDialog() {
 
     if (status === 201 || status === 409) {
       writeDraft(user.sub, null);
-      setResult({ date: String(data.date ?? ''), already: status === 409 });
+      setResult({ already: status === 409 });
       setStep('done');
     } else if (status === 401) {
       // ID tokens last an hour; the draft keeps the answers across re-login.
@@ -239,14 +253,17 @@ export default function ApplyDialog() {
           </p>
         )}
 
-        {(section || step === 'login') && (
+        {section && typeof step === 'number' && (
           <div className="apply__progress" role="group" aria-label="Progreso de la inscripción">
-            {Array.from({ length: SECTIONS.length + 1 }, (_, index) => {
-              const current = step === 'login' ? 0 : (step as number) + 1;
-              return <span key={index} className={`apply__dot${index < current ? ' is-complete' : ''}${index === current ? ' is-current' : ''}`} aria-hidden="true" />;
-            })}
+            {Array.from({ length: SECTIONS.length }, (_, index) => (
+              <span
+                key={index}
+                className={`apply__dot${index < step ? ' is-complete' : ''}${index === step ? ' is-current' : ''}`}
+                aria-hidden="true"
+              />
+            ))}
             <span className="apply__sr-only" aria-live="polite">
-              {step === 'login' ? 'Presentación, paso 1' : `${section?.title}, paso ${(step as number) + 2} de ${SECTIONS.length + 1}`}
+              {`${section.title}, paso ${step + 1} de ${SECTIONS.length}`}
             </span>
           </div>
         )}
@@ -260,9 +277,9 @@ export default function ApplyDialog() {
 
           {step === 'login' && (
             <div className="apply__login">
-              <p>GenomIA es un proyecto de la Universidad de O'Higgins, a cargo del Dr. Alex Di Genova (Instituto de Ciencias de la Ingeniería) y financiado por ANID (concurso IDeA I+D 2026). Busca desarrollar un reporte genómico con un asistente de inteligencia artificial en español, para lo cual reunirá muestras de ADN de 250 personas sanas de Chile.</p>
-              <p>Puede inscribirse si tiene más de 18 años, no tiene un diagnóstico de enfermedad y no ha recibido ni está recibiendo tratamiento por una condición diagnosticada.</p>
-              <p>Este formulario es una inscripción inicial y toma unos 5 minutos. Más adelante podrá leer y firmar en persona el consentimiento informado oficial, que explica el estudio completo. <strong>Su participación es voluntaria.</strong></p>
+              <p>GenomIA es un proyecto de la Universidad de O'Higgins, dirigido por el Dr. Alex Di Genova (académico del Instituto de Ciencias de la Ingeniería) y financiado por ANID (concurso IDeA I+D 2026). Busca desarrollar un reporte genómico con un asistente de inteligencia artificial en español, para lo cual reunirá muestras de ADN de 250 personas sanas de Chile.</p>
+              <p>En este formulario te preguntaremos si tienes 18 años o más, si te han diagnosticado alguna enfermedad crónica o de relevancia genética y si actualmente estás en tratamiento médico por esa condición.</p>
+              <p>Este formulario es una inscripción inicial y toma alrededor de 5 minutos. Si es seleccionado, más adelante podrá leer y firmar en persona el consentimiento informado oficial, que explica el estudio completo. <strong>Su participación es voluntaria.</strong></p>
 
               <div className="apply__cta">
                 <p className="apply__lead">Para comenzar, ingrese con su cuenta de Google. La identidad se verificará para registrar su inscripción.</p>
@@ -284,8 +301,8 @@ export default function ApplyDialog() {
               </h3>
               <p>
                 {result.already
-                  ? `Postulaste${result.date ? ` el ${formatDate(result.date)}` : ''}. Solo se acepta una postulación por persona.`
-                  : 'Gracias por postular a GenomIA. Te escribiremos a tu correo si quedas seleccionado/a.'}
+                  ? 'Solo se acepta una postulación por persona.'
+                  : 'Gracias por inscribirse. Nos pondremos en contacto con usted vía correo.'}
               </p>
               <button type="button" className="apply__primary" onClick={close}>
                 Cerrar
@@ -295,13 +312,22 @@ export default function ApplyDialog() {
 
           {section && (
             <form className="apply__form" onSubmit={onSectionSubmit}>
-              <h3 ref={headingRef} className="apply__section-title" tabIndex={-1}>
-                {section.title}
-              </h3>
+              {section.pretitle ? (
+                <div className="apply__step-heading">
+                  <span className="apply__pretitle">{section.pretitle}</span>
+                  <h3 ref={headingRef} className="apply__section-title" tabIndex={-1}>
+                    {section.title}
+                  </h3>
+                </div>
+              ) : (
+                <h3 ref={headingRef} className="apply__sr-only" tabIndex={-1}>
+                  {section.title}
+                </h3>
+              )}
 
               {step === 0 && <div className="apply__copy">
-                <details><summary>Qué se le pedirá y costos</summary>
-                  <p><strong>Qué se le pedirá.</strong> Una muestra de sangre venosa de 4 mL, tomada por personal calificado en un centro de salud sugerido por el proyecto. Si lo autoriza, también un panel de exámenes de sangre sin costo para usted, que incluye hemograma, perfil lipídico, glucosa en ayunas y otros indicadores de riñón, hígado y metabolismo. En ese caso se le informará antes la cantidad de sangre necesaria y las indicaciones de preparación, incluido el ayuno.</p>
+                <details><summary>Qué se le solicitará y costos</summary>
+                  <p><strong>Qué se le solicitará.</strong> Una muestra de sangre venosa de 4 mL, tomada por personal calificado en un centro de salud sugerido por el proyecto. Si lo autoriza, también un panel de exámenes de sangre sin costo para usted, que incluye hemograma, perfil lipídico, glucosa en ayunas y otros indicadores de riñón, hígado y metabolismo. En ese caso se le informará antes la cantidad de sangre necesaria y las indicaciones de preparación, incluido el ayuno.</p>
                   <p><strong>Costos.</strong> El proyecto cubre todo lo que forma parte del estudio. Consultas, exámenes u otros servicios de salud habituales no los cubre.</p>
                 </details>
                 <details><summary>Qué recibe y riesgos</summary>
@@ -313,10 +339,45 @@ export default function ApplyDialog() {
                   <p><strong>Sus derechos.</strong> Puede retirarse en cualquier momento sin perjuicio. Al retirarse se elimina el vínculo entre su identidad y sus muestras y datos, pero los datos genómicos y las muestras se conservan sin posibilidad de identificarlo y seguirán usándose en este proyecto o en futuros. Tiene derecho a conocer los resultados, agregados e individuales. Todo esto se detalla en el consentimiento oficial.</p>
                 </details>
               </div>}
-              {step === 2 && <div className="apply__copy"><p>Su información genómica podrá usarse para estudiar variación genética (diferencias naturales del ADN entre personas), ancestría genética (estimación estadística de similitud con poblaciones de referencia; no define identidad cultural ni pertenencia étnica), farmacogenómica (cómo ciertas variantes se relacionan con la respuesta a medicamentos) y salud poblacional (análisis agrupado de la población chilena).</p></div>}
+              {step === 3 && <div className="apply__copy"><p>Su información genómica podrá usarse para estudiar variación genética (diferencias naturales del ADN entre personas), ancestría genética (estimación estadística de similitud con poblaciones de referencia; no define identidad cultural ni pertenencia étnica), farmacogenómica (cómo ciertas variantes se relacionan con la respuesta a medicamentos) y salud poblacional (análisis agrupado de la población chilena).</p></div>}
               {section.questions.map((q) =>
-                q.requiredAcceptance ? (
+                q.conditional && answers[q.conditional.parentId] !== q.conditional.value ? null : q.requiredAcceptance ? (
                   <label key={q.id} className="apply__accept"><input type="checkbox" required checked={answers[q.id] === 'true'} onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.checked ? 'true' : 'false' }))} /> <span>{q.text}</span></label>
+                ) : q.phone ? (
+                  <label key={q.id} className="apply__question apply__question--text">
+                    <span className="apply__legend">{q.text}</span>
+                    <span className="apply__phone">
+                      <span className="apply__phone-prefix" aria-hidden="true">+56</span>
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        required
+                        pattern="9[0-9]{8}"
+                        maxLength={9}
+                        value={answers[q.id]?.startsWith('+56') ? answers[q.id].slice(3) : answers[q.id] ?? ''}
+                        onChange={(e) => {
+                          const local = normalizePhone(e.target.value);
+                          setAnswers((a) => ({ ...a, [q.id]: local ? `+56${local}` : '' }));
+                        }}
+                        aria-describedby={`${q.id}-help`}
+                      />
+                    </span>
+                    <small id={`${q.id}-help`} className="apply__field-help">
+                      Ingresa los 9 dígitos del teléfono móvil, comenzando por 9.
+                    </small>
+                  </label>
+                ) : q.select && q.options ? (
+                  <label key={q.id} className="apply__question apply__question--select">
+                    <span className="apply__legend">{q.text}</span>
+                    <select
+                      required
+                      value={answers[q.id] ?? ''}
+                      onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
+                    >
+                      <option value="" disabled>Selecciona tu región…</option>
+                      {q.options.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </label>
                 ) : q.options ? (
                   <fieldset key={q.id} className="apply__question">
                     <legend>{q.text}</legend>
@@ -329,12 +390,39 @@ export default function ApplyDialog() {
                             value={option}
                             required
                             checked={answers[q.id] === option}
-                            onChange={() => setAnswers((a) => ({ ...a, [q.id]: option }))}
+                            onChange={() => setAnswers((current) => {
+                              const next = { ...current, [q.id]: option };
+                              if (q.conditionalQuestion && option !== q.conditionalQuestion.when) {
+                                delete next[q.conditionalQuestion.id];
+                              }
+                              for (const dependent of section.questions) {
+                                if (dependent.conditional?.parentId === q.id && option !== dependent.conditional.value) {
+                                  delete next[dependent.id];
+                                }
+                              }
+                              return next;
+                            })}
                           />
                           <span>{option}</span>
                         </label>
                       ))}
                     </div>
+                    {q.conditionalQuestion && answers[q.id] === q.conditionalQuestion.when && (
+                      <label className="apply__question apply__question--text">
+                        <span className="apply__legend">{q.conditionalQuestion.text}</span>
+                        <textarea
+                          rows={3}
+                          required
+                          maxLength={2000}
+                          value={answers[q.conditionalQuestion.id] ?? ''}
+                          placeholder="Escriba aquí su respuesta…"
+                          onChange={(event) => setAnswers((current) => ({
+                            ...current,
+                            [q.conditionalQuestion!.id]: event.target.value,
+                          }))}
+                        />
+                      </label>
+                    )}
                   </fieldset>
                 ) : (
                   <label key={q.id} className="apply__question apply__question--text">
@@ -366,7 +454,6 @@ export default function ApplyDialog() {
                 ),
               )}
 
-              {step === 7 && <p className="apply__copy">Gracias por inscribirse. Nos pondremos en contacto con usted a su correo.</p>}
               <div className="apply__actions">
                 {(step as number) > 0 && (
                   <button type="button" className="apply__secondary" onClick={() => setStep((step as number) - 1)}>

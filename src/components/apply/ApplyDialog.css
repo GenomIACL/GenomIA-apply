@@ -89,6 +89,7 @@
   margin: 14px 28px 0;
   color: var(--apply-faint);
   font-size: .8125rem;
+  text-align: justify;
 }
 
 .apply__account strong {
@@ -138,6 +139,7 @@
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: rgba(140, 208, 255, .3) transparent;
+  text-align: justify;
 }
 
 .apply__body::-webkit-scrollbar {
@@ -215,6 +217,21 @@
   width: 100%;
   min-height: 44px;
 }
+.apply__step-heading {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--apply-line);
+}
+
+.apply__pretitle {
+  color: var(--apply-faint);
+  font: inherit;
+  font-size: .8125rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.3;
+}
 
 .apply__done-title,
 .apply__section-title {
@@ -229,7 +246,7 @@
 }
 
 .apply__section-title {
-  margin: 0 0 4px;
+  margin: 0;
 }
 
 .apply__section-title:focus {
@@ -256,6 +273,10 @@
 .apply__copy p { margin: 0 0 14px; }
 .apply__copy details { border-top: 1px solid var(--apply-line); }
 .apply__copy details:last-child { border-bottom: 1px solid var(--apply-line); }
+
+.apply__step-heading + .apply__copy details:first-child {
+  border-top: 0;
+}
 .apply__copy summary {
   display: flex;
   align-items: center;
@@ -337,7 +358,7 @@
   opacity: 1;
 }
 
-.apply button:focus-visible, .apply input:focus-visible {
+.apply button:focus-visible, .apply input:focus-visible, .apply select:focus-visible {
   outline: 2px solid var(--apply-accent);
   outline-offset: 3px;
 }
@@ -351,6 +372,10 @@
   border-top: 1px solid var(--apply-line);
 }
 
+.apply__step-heading + .apply__question {
+  border-top: 0;
+}
+
 .apply__question legend,
 .apply__legend {
   float: left;
@@ -361,6 +386,7 @@
   font-size: 1rem;
   line-height: 1.55;
   text-wrap: pretty;
+  text-align: justify;
 }
 
 .apply__legend small {
@@ -413,6 +439,62 @@
   outline-offset: 2px;
 }
 
+.apply__phone {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.apply__phone-prefix {
+  display: inline-flex;
+  align-items: center;
+  align-self: stretch;
+  padding: 0 14px;
+  border: 1px solid var(--apply-control);
+  border-right: 0;
+  border-radius: 14px 0 0 14px;
+  background: var(--apply-fill);
+  color: var(--apply-soft);
+  font-size: .9375rem;
+}
+
+.apply__phone input,
+.apply__question select {
+  width: 100%;
+  height: 50px;
+  padding: 0 16px;
+  border: 1px solid var(--apply-control);
+  border-radius: 14px;
+  background: var(--apply-fill);
+  color: var(--apply-ink);
+  caret-color: var(--apply-accent);
+  font: inherit;
+  font-size: .9375rem;
+}
+
+.apply__phone input {
+  border-radius: 0 14px 14px 0;
+}
+
+.apply__question select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--apply-soft) 50%), linear-gradient(135deg, var(--apply-soft) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 21px, calc(100% - 15px) 21px;
+  background-repeat: no-repeat;
+  background-size: 5px 5px, 5px 5px;
+  cursor: pointer;
+}
+
+.apply__question select option {
+  background: #050f1d;
+  color: var(--apply-ink);
+}
+
+.apply__field-help {
+  color: var(--apply-faint);
+  font-size: .75rem;
+}
+
 .apply textarea {
   width: 100%;
   min-height: 132px;
@@ -426,6 +508,7 @@
   font-size: .9375rem;
   line-height: 1.6;
   resize: vertical;
+  text-align: justify;
 }
 
 .apply textarea::placeholder {

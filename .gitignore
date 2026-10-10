@@ -12,4 +12,5 @@ odd
 DESIGN.md
 
 # Local Netlify folder
-.netlify
+.netlify.DS_Store
+.netlify/
