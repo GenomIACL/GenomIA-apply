@@ -15,6 +15,8 @@ npm install
 npm run dev
 ```
 
+`npm run dev` also runs the Netlify function (`netlify/functions/postular.ts`) and loads `.env` into it, so the "Postula" flow can be tested end to end at http://localhost:5173/#postula without the Netlify CLI. Copy `.env.example` to `.env` and fill in the four variables first; Google sign-in also needs `http://localhost:5173` in the OAuth client's authorized JavaScript origins. Production still runs the function on Netlify.
+
 ## Typecheck and production build
 
 ```sh
