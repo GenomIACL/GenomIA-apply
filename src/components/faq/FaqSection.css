@@ -1,6 +1,4 @@
 .faq {
-  --faq-rule: linear-gradient(90deg, var(--brand-pink), var(--brand-sky));
-
   max-width: 1440px;
   margin: 0 auto;
   padding: clamp(88px, 11vw, 148px) clamp(20px, 7vw, 112px);
@@ -17,50 +15,13 @@
   white-space: nowrap;
 }
 
-/* Barra superior: insignia + rótulo sobre una línea con los colores de la mascota. */
-
-.faq__bar {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding-bottom: 22px;
-}
-
-.faq__bar::after {
-  content: '';
-  position: absolute;
-  inset: auto 0 0;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--faq-rule);
-}
-
-.faq__badge {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--brand-pink);
-  color: var(--page-bg);
-  font-size: .9375rem;
-  font-weight: 800;
-}
-
-.faq__kicker {
-  font-size: .9375rem;
-  font-weight: 600;
-}
-
 .faq__grid {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: clamp(32px, 6vw, 96px);
-  margin-top: clamp(48px, 7vw, 96px);
 }
 
-/* Columna izquierda: título enorme y la mascota sobre un disco de luz (sus contornos son negros). */
+/* Columna izquierda: título y mascota sobre un disco de luz (sus contornos son negros). */
 
 .faq__aside {
   display: flex;
@@ -70,10 +31,10 @@
 
 .faq__title {
   margin: 0;
-  font-size: clamp(5rem, 13vw, 11rem);
-  font-weight: 800;
-  line-height: .85;
-  letter-spacing: -.06em;
+  font-size: clamp(2.5rem, 5.4vw, 4.5rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -.035em;
 }
 
 .faq__mascot {
@@ -147,9 +108,71 @@
   color: var(--page-ink-faint);
 }
 
+/* Categorías plegables: cada una es un encabezado clicable con su conteo y la lista de preguntas debajo. */
+
+.faq__groups {
+  margin-top: 32px;
+  border-top: 1px solid var(--page-line);
+}
+
+.faq__group {
+  border-bottom: 1px solid var(--page-line);
+}
+
+.faq__group-head {
+  margin: 0;
+}
+
+.faq__group-head button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 22px 0;
+  border: 0;
+  background: none;
+  color: var(--page-ink);
+  font: inherit;
+  font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
+  font-weight: 500;
+  letter-spacing: -.01em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.faq__group-head small {
+  color: var(--page-ink-faint);
+  font-size: .8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.faq__group-head svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-left: auto;
+  transition: transform .25s ease, color .25s ease;
+}
+
+.faq__group-head button:hover svg,
+.faq__group-head button[aria-expanded='true'] svg {
+  color: var(--brand-sky);
+}
+
+.faq__group-head button[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+
+.faq__group-head button:focus-visible {
+  outline: 2px solid var(--brand-sky);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
 .faq__list {
-  margin: 12px 0 0;
+  margin: 0;
   padding: 0;
+  border-top: 1px solid var(--page-line);
   list-style: none;
 }
 
@@ -162,8 +185,7 @@
   position: absolute;
   inset: auto 0 0;
   height: 1px;
-  background: var(--faq-rule);
-  opacity: .55;
+  background: var(--page-line);
 }
 
 .faq__item summary {
@@ -212,7 +234,7 @@
   padding: 0 46px 26px 0;
   color: var(--page-ink-soft);
   font-size: .9375rem;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1.7;
 }
 
@@ -223,26 +245,6 @@
 
 .faq__empty p {
   margin: 0 0 6px;
-}
-
-.faq__more {
-  margin-top: 28px;
-  padding: 6px 0;
-  border: 0;
-  background: none;
-  color: var(--page-ink);
-  font: inherit;
-  font-weight: 600;
-  text-decoration: underline;
-  text-decoration-color: var(--brand-pink);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 6px;
-  cursor: pointer;
-}
-
-.faq__more:hover,
-.faq__more:focus-visible {
-  color: var(--brand-sky);
 }
 
 @media (max-width: 860px) {

@@ -1,26 +1,32 @@
 import { useState } from 'react';
 import mascot from '../../assets/faq/mascota-faq.webp';
 import { FAQ_ID } from '../hero/Scrolltosection.ts';
-import { FAQS, matches } from './faqs.ts';
+import { CATEGORIES, FAQS, matches } from './faqs.ts';
+import type { Category } from './faqs.ts';
 import './FaqSection.css';
-
-const INITIAL = 6;
 
 export default function FaqSection() {
   const [query, setQuery] = useState('');
-  const [showAll, setShowAll] = useState(false);
+  // Todas las categorías arrancan cerradas; se abren al hacer clic o con "Expandir todas".
+  const [open, setOpen] = useState<Set<Category>>(() => new Set());
 
   const searching = query.trim() !== '';
   const results = FAQS.filter((faq) => matches(faq, query));
-  const visible = searching || showAll ? results : results.slice(0, INITIAL);
+  const groups = CATEGORIES.map((category) => ({
+    category,
+    items: results.filter((faq) => faq.category === category),
+  })).filter((group) => group.items.length > 0);
+
+  const toggleCategory = (category: Category) =>
+    setOpen((current) => {
+      const next = new Set(current);
+      if (next.has(category)) next.delete(category);
+      else next.add(category);
+      return next;
+    });
 
   return (
     <section id={FAQ_ID} className="faq" aria-labelledby="faq-title">
-      <header className="faq__bar">
-        <span className="faq__badge" aria-hidden="true">?</span>
-        <span className="faq__kicker">Preguntas y respuestas</span>
-      </header>
-
       <div className="faq__grid">
         <div className="faq__aside">
           <h2 id="faq-title" className="faq__title">
@@ -51,22 +57,49 @@ export default function FaqSection() {
             {searching ? `${results.length} resultados` : ''}
           </p>
 
-          {visible.length > 0 ? (
-            <ul className="faq__list">
-              {visible.map((faq) => (
-                <li key={faq.q}>
-                  <details className="faq__item">
-                    <summary>
-                      <span>{faq.q}</span>
-                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </summary>
-                    <p>{faq.a}</p>
-                  </details>
-                </li>
-              ))}
-            </ul>
+          {groups.length > 0 ? (
+            <div className="faq__groups">
+              {groups.map(({ category, items }) => {
+                // Buscar abre todas las categorías con resultados, para que no haya que buscar la pregunta a mano.
+                const isOpen = searching || open.has(category);
+                const panelId = `faq-group-${CATEGORIES.indexOf(category)}`;
+                return (
+                  <section key={category} className="faq__group">
+                    <h3 className="faq__group-head">
+                      <button
+                        type="button"
+                        aria-expanded={isOpen}
+                        aria-controls={panelId}
+                        onClick={() => toggleCategory(category)}
+                      >
+                        <span>{category}</span>
+                        <small>{items.length}</small>
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
+                    </h3>
+                    {isOpen && (
+                      <ul id={panelId} className="faq__list">
+                        {items.map((faq) => (
+                          <li key={faq.q}>
+                            <details className="faq__item">
+                              <summary>
+                                <span>{faq.q}</span>
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                  <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              </summary>
+                              <p>{faq.a}</p>
+                            </details>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+                );
+              })}
+            </div>
           ) : (
             <div className="faq__empty">
               <p>No encontramos preguntas sobre “{query.trim()}”.</p>
@@ -74,11 +107,6 @@ export default function FaqSection() {
             </div>
           )}
 
-          {!searching && !showAll && results.length > INITIAL && (
-            <button className="faq__more" type="button" onClick={() => setShowAll(true)}>
-              Ver más ({results.length - INITIAL})
-            </button>
-          )}
         </div>
       </div>
     </section>

@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 import Alex from '../../assets/team/Alex.jpg';
 import Andres from '../../assets/team/Andres.png';
 import Carol from '../../assets/team/Carol.png';
-import Gabriel from '../../assets/team/Gabriel.webp';
+import Gabriel from '../../assets/team/Gabriel.png';
 import Susan from '../../assets/team/Susan.jpg';
 import Isidora from '../../assets/team/Isidora.png';
 import Fabian from '../../assets/team/Fabian.jpeg';
@@ -78,8 +78,6 @@ const center = (index: number) =>
   LOOP_START + (index % TEAM.length + TEAM.length) % TEAM.length;
 
 const INTERVAL_MS = 6000;
-const WHEEL_THRESHOLD = 48;
-const SWIPE_THRESHOLD = 42;
 
 export default function TeamSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -93,11 +91,6 @@ export default function TeamSection() {
   const [reduceMotion, setReduceMotion] = useState(
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
-  const wheelAccumulatorRef = useRef(0);
-  const wheelLockedRef = useRef(false);
-  const wheelUnlockTimerRef = useRef<number | undefined>();
-  const pointerStartRef = useRef<{ pointerId: number; x: number; y: number } | null>(null);
-  const suppressClickRef = useRef(false);
   const active = position % TEAM.length;
 
   useEffect(() => {
@@ -140,11 +133,6 @@ export default function TeamSection() {
     }, INTERVAL_MS);
     return () => window.clearTimeout(timer);
   }, [active, autoPlaying]);
-  useEffect(() => () => {
-    if (wheelUnlockTimerRef.current !== undefined) {
-      window.clearTimeout(wheelUnlockTimerRef.current);
-    }
-  }, []);
 
   const changePosition = (direction: number) => {
     setExpanded(false);
@@ -168,7 +156,7 @@ export default function TeamSection() {
       </div>
 
       <p id="team-instructions" className="team__sr">
-        Usa las flechas, la rueda o un deslizamiento horizontal para cambiar de persona. Presiona Enter para mostrar u ocultar sus estudios.
+        Haz clic en una persona para verla o usa las flechas del teclado. Presiona Enter para mostrar u ocultar sus estudios.
       </p>
       <div
         id="team-stage"
@@ -183,50 +171,6 @@ export default function TeamSection() {
         onMouseLeave={() => setHovering(false)}
         onFocus={() => setHovering(true)}
         onBlur={() => setHovering(false)}
-        onWheel={(event) => {
-          if (event.ctrlKey) return;
-          const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
-          if (!delta) return;
-          event.preventDefault();
-          if (wheelLockedRef.current) return;
-
-          wheelAccumulatorRef.current += delta;
-          if (Math.abs(wheelAccumulatorRef.current) < WHEEL_THRESHOLD) return;
-
-          const direction = wheelAccumulatorRef.current > 0 ? 1 : -1;
-          wheelAccumulatorRef.current = 0;
-          wheelLockedRef.current = true;
-          changePosition(direction);
-          wheelUnlockTimerRef.current = window.setTimeout(() => {
-            wheelLockedRef.current = false;
-          }, 650);
-        }}
-        onPointerDown={(event) => {
-          if (event.pointerType !== 'touch') return;
-          pointerStartRef.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
-          event.currentTarget.setPointerCapture(event.pointerId);
-        }}
-        onPointerUp={(event) => {
-          const start = pointerStartRef.current;
-          if (!start || start.pointerId !== event.pointerId) return;
-          pointerStartRef.current = null;
-
-          const deltaX = event.clientX - start.x;
-          const deltaY = event.clientY - start.y;
-          if (Math.abs(deltaX) < SWIPE_THRESHOLD || Math.abs(deltaX) <= Math.abs(deltaY)) return;
-
-          suppressClickRef.current = true;
-          changePosition(deltaX < 0 ? 1 : -1);
-        }}
-        onPointerCancel={() => {
-          pointerStartRef.current = null;
-        }}
-        onClickCapture={(event) => {
-          if (!suppressClickRef.current) return;
-          event.preventDefault();
-          event.stopPropagation();
-          suppressClickRef.current = false;
-        }}
         onKeyDown={(event) => {
           if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
             event.preventDefault();

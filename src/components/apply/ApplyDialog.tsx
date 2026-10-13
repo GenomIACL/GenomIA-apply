@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { SECTIONS, countWords } from '../../questions';
+import { SECTIONS, countWords, truncateWords } from '../../questions';
 import './ApplyDialog.css';
 
 /** Any `<a href="#postula">` opens this dialog. */
@@ -366,6 +366,23 @@ export default function ApplyDialog() {
                       Ingresa los 9 dígitos del teléfono móvil, comenzando por 9.
                     </small>
                   </label>
+                ) : q.integer ? (
+                  <label key={q.id} className="apply__question apply__question--text">
+                    <span className="apply__legend">{q.text}</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      required
+                      pattern="[1-9][0-9]?"
+                      maxLength={2}
+                      value={answers[q.id] ?? ''}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
+                        setAnswers((a) => ({ ...a, [q.id]: digits }));
+                      }}
+                    />
+                  </label>
                 ) : q.select && q.options ? (
                   <label key={q.id} className="apply__question apply__question--select">
                     <span className="apply__legend">{q.text}</span>
@@ -436,17 +453,17 @@ export default function ApplyDialog() {
                       maxLength={q.maxWords ? 10000 : 2000}
                       value={answers[q.id] ?? ''}
                       placeholder="Escribe aquí tu respuesta…"
-                      onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
-                      ref={(el) =>
-                        el?.setCustomValidity(
-                          q.maxWords && countWords(el.value) > q.maxWords
-                            ? `Usa como máximo ${q.maxWords} palabras.`
-                            : '',
-                        )
-                      }
+                      onChange={(e) => {
+                        // Límite duro: lo que pase de las palabras permitidas (por ejemplo al pegar) se corta.
+                        const value = q.maxWords ? truncateWords(e.target.value, q.maxWords) : e.target.value;
+                        setAnswers((a) => ({ ...a, [q.id]: value }));
+                      }}
                     />
                     {q.maxWords && (
-                      <small className="apply__count" aria-live="polite">
+                      <small
+                        className={`apply__count${countWords(answers[q.id] ?? '') > q.maxWords ? ' is-over' : ''}`}
+                        aria-live="polite"
+                      >
                         {countWords(answers[q.id] ?? '')} / {q.maxWords} palabras
                       </small>
                     )}

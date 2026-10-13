@@ -58,7 +58,7 @@ function sheets() {
         method: 'PUT',
         data: { values: [header] },
       }),
-    append: (row: string[]) =>
+    append: (row: (string | number)[]) =>
       client.request({
         // RAW keeps answers like "=HYPERLINK(...)" as plain text, never formulas.
         url: `${base}/A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
@@ -107,14 +107,15 @@ export default async (req: Request) => {
   const columns = [...header, ...missing];
   if (missing.length) await sheet.writeHeader(columns);
 
-  const record: Record<string, string> = {
+  const record: Record<string, string | number> = {
     fecha: new Date().toISOString(),
     sub: user.sub,
     email: user.email!,
     nombre: user.name ?? '',
   };
   // Only known ids: extra keys like "sub" must not overwrite the verified columns.
-  for (const q of QUESTIONS) record[q.id] = answers[q.id] as string;
+  // Integers go in as numbers so Excel can sort and sum them; everything else stays text.
+  for (const q of QUESTIONS) record[q.id] = q.integer ? Number(answers[q.id]) : (answers[q.id] as string);
   // ponytail: check-then-append isn't atomic; two simultaneous submits by the
   // same person could both land. Acceptable at this volume; dedupe in the sheet.
   await sheet.append(columns.map((column) => record[column] ?? ''));

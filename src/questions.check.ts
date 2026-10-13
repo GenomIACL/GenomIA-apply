@@ -1,18 +1,18 @@
 // Run: npm run check
 import assert from 'node:assert/strict';
-import { QUESTIONS, SECTIONS, validateAnswers } from './questions.ts';
+import { QUESTIONS, SECTIONS, countWords, truncateWords, validateAnswers } from './questions.ts';
 
 const valid = Object.fromEntries(
   QUESTIONS.map((q) => [
     q.id,
-    q.phone ? '+56912345678' : q.requiredAcceptance ? 'true' : q.id === 'elegibilidad_enfermedad' ? 'Asma' : q.options ? q.options[0] : q.maxWords ? 'Respuesta inicial.' : '',
+    q.phone ? '+56912345678' : q.integer ? '34' : q.requiredAcceptance ? 'true' : q.id === 'elegibilidad_enfermedad' ? 'Asma' : q.options ? q.options[0] : q.maxWords ? 'Respuesta inicial.' : '',
   ]),
 );
 
 assert.equal(SECTIONS[0].title, 'Lo que debes saber para participar');
 assert.equal(SECTIONS[0].questions.length, 0);
 assert.equal(SECTIONS[1].title, 'Tus Datos');
-assert.deepEqual(SECTIONS[1].questions.map((q) => q.id), ['contacto_telefono', 'contacto_region']);
+assert.deepEqual(SECTIONS[1].questions.map((q) => q.id), ['contacto_telefono', 'contacto_region', 'datos_sexo', 'datos_edad']);
 assert(
   QUESTIONS.some(
     (q) => q.id === 'elegibilidad_enfermedad'
@@ -34,6 +34,16 @@ assert.match(validateAnswers({ ...valid, acepta_inscripcion: 'x'.repeat(2001) })
 assert.match(validateAnswers({ ...valid, contacto_telefono: '+56812345678' })!, /formato/);
 assert.match(validateAnswers({ ...valid, contacto_telefono: '+5691234567' })!, /formato/);
 assert.match(validateAnswers({ ...valid, contacto_region: 'Región inválida' })!, /inválida/);
+assert.match(validateAnswers({ ...valid, datos_edad: '100' })!, /entero entre 1 y 99/);
+assert.match(validateAnswers({ ...valid, datos_edad: '0' })!, /entero entre 1 y 99/);
+assert.match(validateAnswers({ ...valid, datos_edad: '07' })!, /entero entre 1 y 99/);
+assert.match(validateAnswers({ ...valid, datos_edad: '3.5' })!, /entero entre 1 y 99/);
+assert.match(validateAnswers({ ...valid, datos_sexo: 'Otro' })!, /inválida/);
+assert.equal(validateAnswers({ ...valid, datos_edad: '99' }), null);
+assert.equal(truncateWords('uno dos tres cuatro', 2), 'uno dos');
+assert.equal(truncateWords('uno\n dos  tres', 2), 'uno\n dos');
+assert.equal(truncateWords('uno dos', 5), 'uno dos');
+assert.equal(countWords(truncateWords('a '.repeat(250), 100)), 100);
 assert.equal(validateAnswers({ ...valid, sub: 'forged' }), null); // extra keys are ignored by the function
 assert.equal(validateAnswers({ ...valid, elegibilidad_mayor_18: 'No' }), null); // negative eligibility is retained
 assert.match(validateAnswers({ ...valid, acepta_inscripcion: 'false' })!, /obligatorio/);

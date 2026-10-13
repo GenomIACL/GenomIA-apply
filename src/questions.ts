@@ -6,6 +6,8 @@ export type Question = {
   maxWords?: number;
   requiredAcceptance?: boolean;
   phone?: boolean;
+  /** Whole number typed as digits, from 1 up to `max`. */
+  integer?: { max: number };
   select?: boolean;
   conditionalQuestion?: { id: string; text: string; when: string };
   conditional?: { parentId: string; value: string };
@@ -51,6 +53,8 @@ export const SECTIONS: Section[] = [
         options: CHILE_REGIONS,
         select: true,
       },
+      { id: 'datos_sexo', text: 'Sexo', options: ['Masculino', 'Femenino'] },
+      { id: 'datos_edad', text: 'Edad', integer: { max: 99 } },
     ],
   },
   {
@@ -127,6 +131,18 @@ export const MAX_TEXT_LENGTH = 2000;
 
 export const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
 
+/** Keeps the text up to its `max`-th word, with the original spacing and line breaks. */
+export function truncateWords(text: string, max: number) {
+  if (countWords(text) <= max) return text;
+  let end = 0;
+  let count = 0;
+  for (const match of text.matchAll(/\S+/g)) {
+    if (++count > max) break;
+    end = (match.index ?? 0) + match[0].length;
+  }
+  return text.slice(0, end);
+}
+
 /** Returns an error message, or null when every answer is present and allowed. */
 export function validateAnswers(answers: Record<string, unknown>): string | null {
   for (const q of QUESTIONS) {
@@ -141,6 +157,9 @@ export function validateAnswers(answers: Record<string, unknown>): string | null
     if (typeof value !== 'string' || !value.trim()) return `Falta responder ${q.id}`;
     if (value.length > MAX_TEXT_LENGTH) return `${q.id} es demasiado larga`;
     if (q.phone && !/^\+569\d{8}$/.test(value)) return `${q.id} debe tener formato +569XXXXXXXX`;
+    if (q.integer && !(/^[1-9]\d?$/.test(value) && Number(value) <= q.integer.max)) {
+      return `${q.id} debe ser un número entero entre 1 y ${q.integer.max}`;
+    }
     if (q.options && !q.options.includes(value)) return `${q.id} tiene una opción inválida`;
     if (q.requiredAcceptance && value !== 'true') return `${q.id} es obligatorio`;
     if (q.maxWords && countWords(value) > q.maxWords) return `${q.id} supera ${q.maxWords} palabras`;

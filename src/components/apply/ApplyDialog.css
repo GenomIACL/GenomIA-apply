@@ -476,6 +476,19 @@
   border-radius: 0 14px 14px 0;
 }
 
+.apply__question input[type='text'] {
+  width: 100%;
+  height: 50px;
+  padding: 0 16px;
+  border: 1px solid var(--apply-control);
+  border-radius: 14px;
+  background: var(--apply-fill);
+  color: var(--apply-ink);
+  caret-color: var(--apply-accent);
+  font: inherit;
+  font-size: .9375rem;
+}
+
 .apply__question select {
   appearance: none;
   background-image: linear-gradient(45deg, transparent 50%, var(--apply-soft) 50%), linear-gradient(135deg, var(--apply-soft) 50%, transparent 50%);
@@ -525,6 +538,10 @@
   color: var(--apply-faint);
   font-size: .75rem;
   font-variant-numeric: tabular-nums;
+}
+
+.apply__count.is-over {
+  color: #ffb38c;
 }
 
 .apply__actions {
