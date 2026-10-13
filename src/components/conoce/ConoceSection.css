@@ -228,10 +228,13 @@
     display: contents;
   }
 
+  /* Sin sticky: el ancla de ::before es la figura misma, y el "top" del sticky se anula para no desplazarla. */
   .conoce__figure {
-    position: static;
+    position: relative;
+    top: auto;
     order: 1;
-    width: min(100%, 340px);
+    align-self: start;
+    width: min(100%, 240px);
     margin-top: 40px;
   }
 
