@@ -2,7 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import Arrow from '../ui/Arrow';
 import brandLogo from '../../assets/genomia.png';
 import { APPLY_HASH } from '../apply/ApplyDialog';
-import { ABOUT_ID, TEAM_ID, scrollToSection } from './Scrolltosection.ts';
+import { ABOUT_ID, CONOCE_ID, FAQ_ID, TEAM_ID, scrollToSection } from './Scrolltosection.ts';
+
+const LEFT_LINKS = [
+  { id: ABOUT_ID, label: '¿Qué es GenomIA?' },
+  { id: CONOCE_ID, label: 'Conoce' },
+];
+const RIGHT_LINKS = [
+  { id: FAQ_ID, label: 'FAQ' },
+  { id: TEAM_ID, label: 'Quiénes somos' },
+];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -58,13 +67,11 @@ export default function Navbar() {
       <header className="nav">
         <div className="nav-side nav-side-left">
           <div className="nav-actions">
-            <a
-              className="nav-link"
-              href={`#${ABOUT_ID}`}
-              onClick={(event) => scrollToSection(event, ABOUT_ID)}
-            >
-              ¿Qué es GenomIA?
-            </a>
+            {LEFT_LINKS.map(({ id, label }) => (
+              <a key={id} className="nav-link" href={`#${id}`} onClick={(event) => scrollToSection(event, id)}>
+                {label}
+              </a>
+            ))}
           </div>
         </div>
 
@@ -74,13 +81,13 @@ export default function Navbar() {
 
         <div className="nav-side nav-side-right">
           <div className="nav-actions nav-actions-right">
-            <a
-              className="nav-link"
-              href={`#${TEAM_ID}`}
-              onClick={(event) => scrollToSection(event, TEAM_ID)}
-            >
-              Quiénes somos
-            </a>
+            <div className="nav-actions">
+              {RIGHT_LINKS.map(({ id, label }) => (
+                <a key={id} className="nav-link" href={`#${id}`} onClick={(event) => scrollToSection(event, id)}>
+                  {label}
+                </a>
+              ))}
+            </div>
             <a className="btn btn-nav-start" href={APPLY_HASH}>
               Postula
             </a>
@@ -113,26 +120,19 @@ export default function Navbar() {
         aria-label="Navegación móvil"
         aria-hidden={!menuOpen}
       >
-        <a
-          className="m-link"
-          href={`#${ABOUT_ID}`}
-          onClick={(event) => {
-            setMenuOpen(false);
-            scrollToSection(event, ABOUT_ID);
-          }}
-        >
-          ¿Qué es GenomIA?
-        </a>
-        <a
-          className="m-link"
-          href={`#${TEAM_ID}`}
-          onClick={(event) => {
-            setMenuOpen(false);
-            scrollToSection(event, TEAM_ID);
-          }}
-        >
-          Quiénes somos
-        </a>
+        {[...LEFT_LINKS, ...RIGHT_LINKS].map(({ id, label }) => (
+          <a
+            key={id}
+            className="m-link"
+            href={`#${id}`}
+            onClick={(event) => {
+              setMenuOpen(false);
+              scrollToSection(event, id);
+            }}
+          >
+            {label}
+          </a>
+        ))}
         <a
           className="m-start"
           href={APPLY_HASH}

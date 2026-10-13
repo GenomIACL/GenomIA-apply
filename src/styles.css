@@ -7,6 +7,10 @@
   --page-ink-faint: #7f9bb6;
   --page-accent: #8cd0ff;
   --page-line: rgba(140, 208, 255, .16);
+  /* Mascota GenomIA: hebras azul y rosa, peldaños celestes. Aclarados para leerse sobre el fondo. */
+  --brand-blue: #4a63f0;
+  --brand-pink: #e27ad8;
+  --brand-sky: #5ccbff;
 }
 
 * { box-sizing: border-box; }

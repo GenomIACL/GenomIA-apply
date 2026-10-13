@@ -2,6 +2,8 @@ import type { MouseEvent } from 'react';
 
 export const ABOUT_ID = 'que-es-genomia';
 export const TEAM_ID = 'quienes-somos';
+export const CONOCE_ID = 'conoce';
+export const FAQ_ID = 'faq';
 
 /**
  * Desplaza la página hasta la sección con ese id usando scroll suave.
