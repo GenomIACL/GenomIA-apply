@@ -134,10 +134,15 @@
   color: var(--page-ink);
   font: inherit;
   font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: -.01em;
   text-align: left;
   cursor: pointer;
+}
+
+/* Categoría abierta: azul más oscuro y notorio, sin tocar el resto de la lista. */
+.faq__group-head button[aria-expanded='true'] {
+  color: #3478c0;
 }
 
 .faq__group-head small {
